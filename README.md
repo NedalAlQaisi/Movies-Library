@@ -1,12 +1,11 @@
-# Movies-Library
-Setting up the server of the movie app and create the basic structures
+# Movies-Library - 1.0.0v
 
-# Project Name - Project Version
-
-**Author Name**: Add your name here
+**Author Name**: Nedal AL-Qaisi
 
 ## WRRC
 ![](./WRRC.jpg)
+
+
 ## Overview
 
 ## Getting Started
