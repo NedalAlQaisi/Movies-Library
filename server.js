@@ -19,6 +19,8 @@ app.get('/favorite', welcomeToFavoriteHandler);
 app.get('/reviews', reviews)
 app.get('/trending', trendHandler);
 app.get('/searchmovie', movieSearch);
+app.post("/addMovie", addMovieHandler);
+app.get("/getMovies", getMoviesHandler)
 app.use(errorHandler);
 
 
@@ -43,7 +45,22 @@ function errorHandler(error, req, res) {
     res.status(500).send(err);
 };
 
+function addMovieHandler(req, res) {
+    let movies = req.body;
+    const sql = `INSERT INTO overmovie(title, release_date, poster, overview, comment) VALUES(MOV1, MOV2, MOV3, MOV4, MOV5) RETURNING *;`
+    let value = [movies.title, movies.release_date, movies.poster_path, movies.overview, movies.comment];
+    client.query(sql, value).then((data) => {
 
+        return res.status(201).json(data.rows);
+    })
+}
+
+function getMoviesHandler(req, res) {
+    const sql = `SELECT * FROM overmovie`;
+    client.query(sql).then(data => {
+        return res.status(200).json(data.rows);
+    })
+}
 
 
 function welcomeToFavoriteHandler(req, res) {
