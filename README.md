@@ -14,6 +14,6 @@
 - All required files have been prepared
 - The home page and favorite page have been linked to the server
 ## Project Features
-Movie app that can check the latest movies based on categories.
-Create a post request to save a specific movie to database along.
-Create a get request to get all the data from the database
+- Movie database created.
+- A function has been made so that we can store on the database.
+- A function has been made so that we can retrieve and view the stored data.

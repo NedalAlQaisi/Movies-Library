@@ -1,18 +1,27 @@
 'use strict';
 
-const express = require('express');
+const express = require("express");
 const app = express();
+app.use(express.json());
 
 const jsonData = require("./Movie_Data/data.json");
 
-
 const dotenv = require(`dotenv`);
-dotenv.config();
 
 const axios = require("axios");
 
+const pg = require("pg");
+
+// const { Client } = require('pg/lib');
+
+dotenv.config();
+
 const PORT = process.env.PORT;
 const APIKEY = process.env.APIKEY;
+
+
+const DATABASE_URL = process.env.DATABASE_URL;
+const client = new pg.Client(DATABASE_URL);
 
 
 //>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>[Home Page]
@@ -30,15 +39,18 @@ app.get('/trending', trend_list);
 app.get('/searchmovie', searching_for_movie);
 
 
-// app.get('/reviews', reviews)
-// app.post("/addMovie", addMovieHandler);
-// app.get("/getMovies", getMoviesHandler);
+//>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>[Add a Movie in DB]
+app.post("/addMovie", addMovie);
+
+
+//>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>[Get a Movie from DB]
+app.get("/getMovies", getMovies);
 
 //>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>[404]
 app.get('*', page_not_found);
 
 //>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>[500]
-app.use(error_page);
+app.use(errorHandler);
 
 
 
@@ -50,14 +62,14 @@ function page_not_found(req, res) {
 
 
 // ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^[500]
-function error_page(error, req, res) {
+function errorHandler(error, req, res, next) {
 
-    const eRROr = {
+    const err = {
         status: 500,
-        message: error
-    }
+        message: error,
+    };
 
-    res.status(500).send(eRROr);
+    res.status(500).send(err);
 }
 // ________________________________________________________________________[500]
 
@@ -136,32 +148,51 @@ function searching_for_movie(req, res) {
 }
 // ________________________________________________________________________[Searching for a Movie]
 
-/*
-function addMovieHandler(req, res) {
-    let movie = req.body;
-    const sql = `INSERT INTO overmovie(title, release_date, poster, overview, comment) VALUES(MOV1, MOV2, MOV3, MOV4, MOV5) RETURNING *;`
-    let value = [movie.title, movie.release_date, movie.poster_path, movie.overview, movie.comment];
-    client.query(sql, value).then((data) => {
 
-        return res.status(201).json(data.rows);
+
+
+// ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^[Add Movie in DB]
+function addMovie(req, res) {
+    let movieInsert = req.body;
+    const cols = Object.keys(req.body).join(",");
+    let valDoller = "";
+    Object.keys(req.body).forEach((item, idx, arr) => {
+        valDoller += `$${idx+1} ${idx < arr.length-1 ? ",": ""}`;
+    });
+
+    const sql = `INSERT INTO overmovie(${cols}) VALUES(${valDoller}) RETURNING *;`
+        // const sql = `insert into overmovie(${cols}) VALUES(${valDoller}) RETURNING *;`
+        // console.log(sql);
+        // let value = [movieInsert.title, movieInsert.release_date, movieInsert.poster, movieInsert.overview, movieInsert.comment];
+    client.query(sql, Object.values(req.body)).then((data) => {
+
+        res.status(201).json(data.rows);
+
+    }).catch(error => {
+        errorHandler(error, req, res);
     })
 }
+// ________________________________________________________________________[Add Movie in DB]
 
-function getMoviesHandler(req, res) {
-    const sql = `SELECT * FROM overmovie`;
+
+
+// ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^[Get Movie from DB]
+function getMovies(req, res) {
+    const sql = `SELECT * FROM overMovie`;
     client.query(sql).then(data => {
         return res.status(200).json(data.rows);
+    }).catch(error => {
+        errorHandler(error, req, res);
     })
 }
-
-
-
-*/
+// ________________________________________________________________________[Get Movie from DB]
 
 
 
 
-app.listen(PORT, () => {
-    console.log(`Listen to port ${PORT}`);
+client.connect().then(() => {
 
+    app.listen(PORT, () => {
+        console.log(`Listen to port ${PORT}`);
+    });
 });
