@@ -1,4 +1,6 @@
-CREATE TABLE overMovie(
+DROP TABLE IF EXISTS overMovie;
+
+CREATE TABLE IF NOT EXISTS overMovie(
 
      id SERIAL PRIMARY KEY,
      title VARCHAR(255),
