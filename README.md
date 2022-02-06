@@ -17,3 +17,6 @@
 - Movie database created.
 - A function has been made so that we can store on the database.
 - A function has been made so that we can retrieve and view the stored data.
+______________________
+- Q1: He needs to focus on writing some code in terms of the attribute and endpoint
+- Q2: I was expecting it to take about an hour but it took over two hours.

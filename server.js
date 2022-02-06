@@ -46,6 +46,18 @@ app.post("/addMovie", addMovie);
 //>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>[Get a Movie from DB]
 app.get("/getMovies", getMovies);
 
+//>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>[Updete a Movie in DB by id]
+app.put("/UPDATE/:id", updateMovie);
+
+
+//>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>[Delete a Movie in DB by id]
+app.delete("/DELETE/:id", deleteMovie)
+
+
+//>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>[Get a movie by its id]
+app.get("/getMovie/:id", getMovieByid);
+
+
 //>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>[404]
 app.get('*', page_not_found);
 
@@ -178,9 +190,13 @@ function addMovie(req, res) {
 
 // ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^[Get Movie from DB]
 function getMovies(req, res) {
+
     const sql = `SELECT * FROM overMovie`;
+
     client.query(sql).then(data => {
+
         return res.status(200).json(data.rows);
+
     }).catch(error => {
         errorHandler(error, req, res);
     })
@@ -188,7 +204,59 @@ function getMovies(req, res) {
 // ________________________________________________________________________[Get Movie from DB]
 
 
+// ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^[Updete a Movie in DB by id]
+function updateMovie(req, res) {
+    const id = req.params.id;
+    const upMov = req.body;
 
+    const sql = `UPDATE overMovie SET title=$1, release_date=$2, poster=$3, overview=$4, comment=$5 WHERE id=${id} RETURNING *;`;
+
+    const values = [upMov.title, upMov.release_date, upMov.poster, upMov.overview, upMov.comment];
+
+    client.query(sql, values).then(data => {
+
+        return res.status(200).json(data.rows);
+
+    }).catch(error => {
+        errorHandler(error, req, res);
+    })
+};
+// ________________________________________________________________________[Updete a Movie in DB by id]
+
+
+// ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^[Delete a Movie in DB by id]
+function deleteMovie(req, res) {
+    const id = req.params.id;
+
+    const sql = `DELETE FROM overMovie WHERE id=${id};`
+
+    client.query(sql).then(() => {
+
+        return res.status(204).json([]);
+
+    }).catch(error => {
+        errorHandler(error, req, res);
+    })
+}
+// ________________________________________________________________________[Delete a Movie in DB by id]
+
+
+
+// ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^[Get a movie by its id]
+function getMovieByid(req, res) {
+    const id = req.params.id;
+    const sql = `SELECT * FROM overMovie WHERE id=${id};`
+
+    client.query(sql).then(data => {
+
+        res.status(200).json(data.rows);
+
+    }).catch(error => {
+        console.log(error);
+        errorHandler(error, req, res);
+    })
+}
+// ________________________________________________________________________[Get a movie by its id]
 
 client.connect().then(() => {
 
