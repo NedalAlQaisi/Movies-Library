@@ -16,6 +16,9 @@ const pg = require("pg");
 
 dotenv.config();
 
+const cors = require('cors');
+app.use(cors());
+
 const PORT = process.env.PORT;
 const APIKEY = process.env.APIKEY;
 
@@ -91,19 +94,20 @@ function errorHandler(error, req, res, next) {
 
 
 
-function movies(id, title, release_date, poster_path, overview) {
+function movies(id, title, release_date, poster_path, overview, comment) {
 
     this.id = id;
     this.title = title;
     this.release_date = release_date;
     this.poster_path = poster_path;
     this.overview = overview;
+    this.comment = comment;
 };
 
 
 // ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^[Home Page]
 function home_page(req, res) {
-    let movie = new movies(jsonData.id, jsonData.title, jsonData.poster_path, jsonData.overview);
+    let movie = new movies(jsonData.id, jsonData.title, jsonData.poster_path, jsonData.overview, jsonData.comment);
 
 
     return res.status(200).json(movie);
@@ -125,7 +129,7 @@ function trend_list(req, res) {
     axios.get(`https://api.themoviedb.org/3/trending/all/day?api_key=${APIKEY}&language=en-US`).then(value => {
 
         value.data.results.forEach(mOv => {
-            let topMovie = new movies(mOv.id, mOv.title, mOv.release_date, mOv.poster_path, mOv.overview);
+            let topMovie = new movies(mOv.id, mOv.title, mOv.release_date, mOv.poster_path, mOv.overview, mOv.comment);
             trendMovie.push(topMovie)
         })
         return res.status(200).json(trendMovie);
@@ -151,7 +155,7 @@ function searching_for_movie(req, res) {
 
         value.data.results.forEach(mOv => {
 
-            let themovie = new movies(mOv.id, mOv.title, mOv.release_date, mOv.poster_path, mOv.overview);
+            let themovie = new movies(mOv.id, mOv.title, mOv.release_date, mOv.poster_path, mOv.overview, mOv.comment);
 
             searchMovie.push(themovie);
         })
